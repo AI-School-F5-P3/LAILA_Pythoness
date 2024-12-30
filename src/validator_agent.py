@@ -1,81 +1,94 @@
-from llm_agent import LLMAgent
+import streamlit as st
+from llm_client import LlmClient
+from assistant import Assistant
+from chat_history import ChatHistory
 
-pregunta_valida=""" 
-"""
-class ValidatorAgent:
+class ChatApp:
+    """Clase principal que orquesta el funcionamiento de la aplicación."""
     def __init__(self):
-        self.rules = {
-            1: "Debes entender lo que el usuario dice.",
-            2: "La respuesta debe profundizar en detalles adicionales o aspectos ocultos.",
-            3: "La respuesta debe confirmar si estás preparado para continuar con la tirada."
+        self.client = LlmClient()
+        self.assistant = Assistant(self.client)
+        self.history = ChatHistory()
+        self.flow_state = "INTRODUCTION"
+
+        # Inicializar el estado de sesión y añadir la personalidad como mensaje de sistema oculto
+        if "welcome_shown" not in st.session_state:
+            # Estados posibles del flujo: INTRODUCTION, QUESTION_1, QUESTION_2, TAROT, FINISH
+            st.session_state.welcome_shown = False
+            st.session_state.messages = []
+            # Añadir personalidad como mensaje de sistema y ocultarlo
+            self.history.add_message("system", self.assistant.personality, hidden=True)
+
+    def generate_laila_response(self, tone):
+        """
+        Genera un mensaje adaptado al tono de Laila.
+        
+        Args:
+            tone (str): El tono deseado (e.g., 'amable', 'ofendida', 'neutral').
+        
+        Returns:
+            None
+        """
+        tone_map = {
+            "amable": "Laila responde con dulzura y comprensión.",
+            "ofendida": "Laila se siente atacada y responde con desdén.",
+            "neutral": "Laila responde de manera profesional y directa.",
         }
-        self.llm_agent = LLMAgent()
-
-    def validate(self, interaction_number, user_response):
-        """
-        Valida la respuesta del usuario según las reglas predefinidas.
-        """
-        expected_rule = self.rules.get(interaction_number, "")
-        validation_prompt = (
-            "Eres un asistente que valida respuestas del usuario. "
-            "La regla es la siguiente:\n"
-            f"Regla: {expected_rule}\n"
-            f"Respuesta del usuario: {user_response}\n"
-            "¿La respuesta cumple con la regla? Responde 'Sí' o 'No'."
-        )
-
-        # Validación de reglas
-        validation_result = self.llm_agent.generate_response([
-            {"role": "user", "content": validation_prompt}
-        ])
-        return "Sí" in validation_result
-
-    def is_valid_tarot_question(self, user_response):
-        """
-        Verifica si la entrada es una pregunta válida para el tarot.
-        """
-        tarot_validation_prompt = (
-            f"{pregunta_valida}"
-            "Tu tarea es valida si la siguiente pregunta "
-            "es adecuada para una lectura de tarot.\n\n"
-            f"Pregunta: {user_response}\n\n"
-            "Responde únicamente 'Sí' si la pregunta es válida para el tarot, "
-            "o 'No' si no lo es."
-        )
-
-        # Llamada al LLM para verificar la validez de la pregunta
-        validation_result = self.llm_agent.generate_response([
-            {"role": "user", "content": tarot_validation_prompt}
-        ])
-        return "Sí" in validation_result
+        # Cambiar el estado del flujo o añadir instrucciones específicas según el tono
+        instruction = tone_map.get(tone, "Laila responde de manera estándar.")
+        # Añadir mensaje al historial como un mensaje del sistema
+        self.history.add_message("system", instruction, hidden=True)
 
     def is_disrespectful(self, user_response):
         """
         Verifica si la respuesta del usuario contiene una falta de respeto.
-        """
-        disrespect_prompt = (
-            "Eres LAILA. Tu tarea es analizar la siguiente entrada:\n"
-            f"Entrada del usuario: '{user_response}'\n\n"
-            "¿La entrada contiene alguna falta de respeto, insulto o lenguaje ofensivo? "
-            "Responde únicamente 'Sí' o 'No'."
-        )
         
-        # Llamada al LLM para verificar si es irrespetuoso
-        validation_result = self.llm_agent.generate_response([
-            {"role": "user", "content": disrespect_prompt}
-        ])
-        return "Sí" in validation_result
+        Args:
+            user_response (str): El mensaje del usuario a verificar.
+        
+        Returns:
+            bool: True si el mensaje es irrespetuoso, False en caso contrario.
+        """
+        # Prepara el mensaje para el modelo de lenguaje
+        disrespect_prompt = (
+            "Recuerda, tú eres LAILA. Tu tarea ahora es verificar si este texto te está faltando al respeto:\n"
+            f"Texto: '{user_response}'\n\n"
+            "¿El texto te falta al respeto? Responde únicamente 'Sí' o 'No'."
+        )
+        # Usar el cliente para obtener la respuesta
+        response = self.client.get_response([{"role": "system", "content": disrespect_prompt}])
+        return response.strip().lower() == "sí"
 
-# Prueba del ValidatorAgent
-if __name__ == "__main__":
-    agent = ValidatorAgent()
+    def run(self):
+        """Ejecuta la aplicación de chat."""
+        # Mostrar mensaje de bienvenida si es la primera interacción
+        if not st.session_state.welcome_shown:
+            welcome_message = self.assistant.generate_welcome_message()
+            self.history.add_message("assistant", welcome_message)
+            st.session_state.welcome_shown = True
 
-    # Ejemplo de pruebas
-    print("Validando pregunta de tarot:")
-    print(agent.is_valid_tarot_question("¿Qué debo tener en cuenta para tomar la mejor decisión?"))  # Espera 'Sí'
+        # Mostrar historial existente (solo mensajes visibles)
+        self.history.display_messages()
 
-    print("Validando falta de respeto:")
-    print(agent.is_disrespectful("Eres una basura"))  # Espera 'Sí'
+        if self.flow_state == "INTRODUCTION":
+            # Procesar entrada del usuario
+            if prompt := st.chat_input("Escribe un mensaje..."):
+                # Añadir y mostrar el mensaje del usuario
+                self.history.add_message("user", content=prompt)
+                with st.chat_message("user"):
+                    st.markdown(prompt)
 
-    print("Validando claridad de respuesta:")
-    print(agent.validate(1, "J me quiere?"))  # Espera 'Sí'
+                # Verificar si el mensaje es irrespetuoso
+                offended = False
+                if self.is_disrespectful(prompt):
+                    self.generate_laila_response("ofendida")
+                    offended = True
+                else:
+                    self.generate_laila_response("amable")
+                    offended = False
+
+                # Procesar y mostrar la respuesta del asistente
+                with st.chat_message("assistant"):
+                    response = self.assistant.client.get_response(self.history.get_messages())
+                    st.markdown(f"{self.flow_state} - {offended}:\n{response}")
+                    self.history.add_message("assistant", content=response)

@@ -21,6 +21,11 @@ h2 {
     color: var(--primary-color);
     font-weight: bold;
 }
+em {
+    color: darkmagenta;
+    display: block;
+    font-size: .9em;
+}
 
 header.stAppHeader {
     background: transparent;
@@ -43,7 +48,7 @@ div[data-testid="stImageContainer"] img {
     border-radius: var(--border-radius);
 }
 
-.stMain {
+/* .stMain {
     background: var(--gradient-bg);
 }
 
@@ -242,7 +247,7 @@ label, p, ul, li {
     margin-top: 3rem;
 } */
 
-.stExpander {
+/*.stExpander {
     border: 1px solid var(--secondary-color);
     border-radius: var(--border-radius);
 }
@@ -291,4 +296,4 @@ ul[role="listbox"] ul[role="option"]:active {
 
 [data-baseweb="popover"] {
     background: none;
-}
+} */

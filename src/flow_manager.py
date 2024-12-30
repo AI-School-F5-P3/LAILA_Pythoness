@@ -3,60 +3,53 @@ class FlowManager:
     Controla el flujo de interacciones en la conversación.
     Permite avanzar paso a paso y verifica si se alcanzó el límite de interacciones.
     """
-    def __init__(self, max_interactions=3):
-        """
-        Inicializa el FlowManager.
-
-        Args:
-            max_interactions (int): Número máximo de interacciones permitidas.
-        """
-        self.max_interactions = max_interactions
-        self.current_interaction = 0
+    def __init__(self, max_steps=8):
+        # Inicializa el número máximo de pasos y el contador actual
+        self.max_steps = max_steps
+        self.current_step = 0
 
     def can_continue(self):
         """
-        Verifica si la conversación puede continuar.
+        Verifica si es posible continuar con las interacciones según el límite definido.
+        """
+        return self.current_step < self.max_steps
 
-        Returns:
-            bool: True si quedan interacciones por completar, False en caso contrario.
+    def advance(self):
         """
-        return self.current_interaction < self.max_interactions
-
-    def increment(self):
+        Avanza al siguiente paso si no se alcanzó el límite.
+        Lanza una excepción si se intenta avanzar más allá del límite.
         """
-        Incrementa el contador de interacciones.
-        """
-        self.current_interaction += 1
+        if self.can_continue():
+            self.current_step += 1
+        else:
+            raise StopIteration("Se alcanzó el límite máximo de interacciones.")
 
     def reset(self):
         """
-        Reinicia el contador de interacciones a cero.
+        Reinicia el contador de pasos.
         """
-        self.current_interaction = 0
+        self.current_step = 0
 
-    def status(self):
+    def finish(self):
         """
-        Muestra el estado actual del flujo de interacción.
-
-        Returns:
-            str: Mensaje con el progreso actual.
+        Reinicia el contador de pasos.
         """
-        return f"Interacción {self.current_interaction + 1} de {self.max_interactions}"
-
-
-from flow_manager import FlowManager
-
-def main():
-    flow_manager = FlowManager(max_interactions=3)
-    
-    print("Iniciando flujo de conversación...\n")
-    while flow_manager.can_continue():
-        print(flow_manager.status())
-        user_input = input("Tú: ").strip()
-        print(f"Respuesta recibida: {user_input}")
-        flow_manager.increment()
-    
-    print("\nFlujo completado. ¡Gracias por participar!")
+        self.current_step = 10
 
 if __name__ == "__main__":
-    main()
+    # Prueba del FlowManager
+    print("Iniciando prueba del FlowManager...")
+    manager = FlowManager(max_steps=3)  # Configura un límite de 3 pasos
+
+    try:
+        while manager.can_continue():
+            print(f"Paso actual: {manager.current_step + 1}")
+            manager.advance()  # Avanza al siguiente paso
+        print("Se completaron todas las interacciones permitidas.")
+    except StopIteration as e:
+        print(e)
+
+    # Reinicia el flujo y muestra el estado
+    manager.reset()
+    print("FlowManager reiniciado.")
+    print(f"Paso actual después del reinicio: {manager.current_step}")

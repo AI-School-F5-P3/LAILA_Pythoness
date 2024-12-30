@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from pathlib import Path
 import os
+import streamlit as st
 
 # Definición de colores e iconos
 # Definición de colores e iconos
@@ -59,10 +60,18 @@ def get_env_key(env_key, levels_up=2, env_file_name=".env"):
         # El mensaje ya se imprime dentro de los bloques anteriores
         raise
 
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-if __name__ == "__main__":
-    try:
-        key = get_env_key("GROQ_API_KY")  # Intencionalmente con error en el nombre
-        print(f"{BRIGHT_GREEN}Clave obtenida: {key}{RESET}")
-    except Exception:
-        pass  # La excepción ya está manejada y pintada en la propia función
+def remote_css(url):
+    st.markdown(f'''
+                <head>
+                    <!-- Material Icons -->
+                    <link href="{url}" rel="stylesheet">
+                </head>
+                ''', unsafe_allow_html=True)   
+    
+def svg_write():
+        # Write the HTML
+        svg_code = ''' _ '''
