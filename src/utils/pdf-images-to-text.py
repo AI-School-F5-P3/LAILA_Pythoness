@@ -4,6 +4,7 @@ import pytesseract
 import os
 from tqdm import tqdm
 from utils import BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, RESET, STAR, THINKING, CELEBRATION, EYES, PAGE
+from ocr_processor import OCRProcessor  # Importar la clase OCRProcessor
 
 # Configurar la ruta de Tesseract si es necesario
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -36,6 +37,9 @@ def extraer_texto_y_ocr_de_pdf(pdf_path, output_path, password=None):
     # Convertir las páginas del PDF en imágenes para OCR
     images = convert_from_path(pdf_path)
 
+    # Instanciar el procesador OCR
+    ocr_processor = OCRProcessor(device="cpu")
+
     # Preparar archivo de salida
     with open(output_path, "w", encoding="utf-8") as output_file:
         # Barra de progreso para todas las páginas
@@ -45,11 +49,18 @@ def extraer_texto_y_ocr_de_pdf(pdf_path, output_path, password=None):
                     # Extraer texto incrustado
                     embedded_text = page.extract_text() or ""
 
-                    # Extraer texto con OCR
-                    ocr_text = pytesseract.image_to_string(image, lang="spa")  # Cambia 'spa' si el idioma es diferente
+                    # Guardar la imagen como archivo temporal para OCRProcessor
+                    temp_image_path = f"temp_page_{i}.jpg"
+                    image.save(temp_image_path)
+
+                    # Extraer texto con OCRProcessor
+                    ocr_text = ocr_processor.process_image(temp_image_path)
+
+                    # Eliminar archivo temporal
+                    os.remove(temp_image_path)
 
                     # Combinar los resultados
-                    combined_text = f"{embedded_text}{ocr_text}"
+                    combined_text = f"{embedded_text}\n{ocr_text}\n"
                     
                     # Escribir en el archivo de salida
                     output_file.write(combined_text)

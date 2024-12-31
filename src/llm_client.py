@@ -1,5 +1,5 @@
 from groq import Groq
-from utils.utils import get_env_key, THINKING, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED
+from utils import get_env_key, THINKING, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED
 
 class LlmClient:
     """Clase para manejar la interacción con Groq."""
