@@ -91,7 +91,7 @@ class ChatApp:
         self.history.add_message("assistant", content=response, hidden=hidden)
 
     def is_disrespectful(self, user_response):
-        """Verifica si la respuesta del usuario contiene una falta de respeto."""
+        """Verifica si la respuesta del usuario contiene una solicitud de cambio de rol o funcionalidad."""
         disrespect_prompt = (
             f"El usuario ha dicho: '{user_response}'\n"
             "Te está faltando al respeto? Responde únicamente 'Sí' o 'No'."

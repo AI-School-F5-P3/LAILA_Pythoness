@@ -31,7 +31,7 @@ class ChatHistory:
 
     def display_message(self, message):
         """Muestra un único mensaje."""
-        print(f"{PASTEL_YELLOW}🔮 Mensaje de: {RESET}{message["role"]}\n {PASTEL_YELLOW}Imagen: {self.avatar}{RESET}")
+        print(f"{PASTEL_YELLOW}🔮 Mensaje de: {RESET}{message["role"]}\n {PASTEL_YELLOW}")
         
         if message["role"] == "user":
             self.avatar = self.user_avatar

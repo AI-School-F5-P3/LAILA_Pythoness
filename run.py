@@ -9,23 +9,23 @@ os.environ["PYTHONPATH"] = str(Path(".").resolve())
 
 def main():
     # Paths
-    api_path = Path("api")
-    frontend_path = Path("frontend")
+    # api_path = Path("api")
+    main_path = Path("src")
     
     # Iniciar la API
-    print("Iniciando API...")
-    api_process = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "main:app", "--reload"],
-        cwd=str(api_path)  # Cambiar al directorio de la API
-    )
+    # print("Iniciando API...")
+    # api_process = subprocess.Popen(
+    #     [sys.executable, "-m", "uvicorn", "main:app", "--reload"],
+    #     cwd=str(api_path)  # Cambiar al directorio de la API
+    # )
     
     # Esperar a que la API esté lista
-    time.sleep(5)
+    # time.sleep(5)
     
     # Iniciar Streamlit
     print("Iniciando aplicación Streamlit...")
     frontend_process = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", str(frontend_path / "app.py")],  # Especificar el archivo directamente
+        [sys.executable, "-m", "streamlit", "run", str(main_path / "main.py")],  # Especificar el archivo directamente
         cwd="."  # Asegurar que el directorio raíz sea el contexto
     )
     
@@ -34,11 +34,11 @@ def main():
     
     try:
         # Mantener el script corriendo
-        api_process.wait()
+        # api_process.wait()
         frontend_process.wait()
     except KeyboardInterrupt:
         print("\nDeteniendo servicios...")
-        api_process.terminate()
+        # api_process.terminate()
         frontend_process.terminate()
         sys.exit(0)
 
