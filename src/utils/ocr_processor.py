@@ -1,5 +1,8 @@
 import torch
 from transformers import AutoModel, AutoTokenizer
+import warnings
+warnings.filterwarnings("ignore") # TODO eliminar warnings
+
 
 class OCRProcessor:
     def __init__(self, model_name='ucaslcl/GOT-OCR2_0', device="cpu"):

@@ -5,6 +5,8 @@ import os
 from tqdm import tqdm
 from utils import BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, RESET, STAR, THINKING, CELEBRATION, EYES, PAGE
 from ocr_processor import OCRProcessor  # Importar la clase OCRProcessor
+import warnings
+warnings.filterwarnings("ignore") # TODO eliminar warnings
 
 # Configurar la ruta de Tesseract si es necesario
 pytesseract.pytesseract.tesseract_cmd = r'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
@@ -62,6 +64,8 @@ def extraer_texto_y_ocr_de_pdf(pdf_path, output_path, password=None):
                     # Combinar los resultados
                     combined_text = f"{embedded_text}\n{ocr_text}\n"
                     
+                    #TODO corregir texto con LLM
+
                     # Escribir en el archivo de salida
                     output_file.write(combined_text)
                 except Exception as e:

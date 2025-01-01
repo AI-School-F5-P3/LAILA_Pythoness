@@ -20,9 +20,10 @@ GREEN_CIRCLE = "\U0001F7E2"  # 🟢
 RED_CIRCLE = "\U0001F534"    # 🔴
 CROSS_MARK = "\U0000274C"    # ❌
 STAR = "\U00002B50"          # ⭐
-CELEBRATION = "\U0001F389"       # 🎉
-THINKING = "\U0001F914"  # 🤔
-RAISED_HAND = "\U0000270B"  # ✋
+WORLD = "\U0001F30D"         # 🌍 
+CELEBRATION = "\U0001F389"   # 🎉
+THINKING = "\U0001F914"      # 🤔
+RAISED_HAND = "\U0000270B"   # ✋
 
 def get_env_key(env_key, levels_up=2, env_file_name=".env"):
     """
