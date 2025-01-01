@@ -1,4 +1,5 @@
-from utils.utils import get_env_key, RED, RESET
+from utils.utils import get_env_key, WORLD, RED, RESET, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
+
 
 import requests
 import pycountry
@@ -57,7 +58,7 @@ class Assistant:
     def generate_welcome_message_tool(self):
         """Genera un mensaje de bienvenida traducido al idioma del usuario."""
         country, country_code, language = self.detect_country_tool()
-        print(country, country_code)
+        print(f"{PASTEL_YELLOW}{WORLD} Pais: {country}, Idioma: {country_code}{RESET}")
 
         prompt = get_env_key('PROMPT_INTRO')
         messages_with_context = [

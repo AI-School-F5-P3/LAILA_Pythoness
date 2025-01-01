@@ -2,7 +2,8 @@ import streamlit as st
 from llm_client import LlmClient
 from assistant import Assistant
 from chat_history import ChatHistory
-from utils.utils import get_env_key
+from utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
+import base64
 
 class ChatApp:
     """Clase principal que orquesta el funcionamiento de la aplicación."""
@@ -10,6 +11,11 @@ class ChatApp:
         self.client = LlmClient()
         self.assistant = Assistant(self.client)
         self.history = ChatHistory()
+        # Cargar y convertir imagen local
+        with open("frontend/static/img/laila_avatar.webp", "rb") as image_laila:
+            self.laila_avatar = f"data:image/png;base64,{base64.b64encode(image_laila.read()).decode()}"
+        with open("frontend/static/img/user.png", "rb") as image_user:
+            self.user_avatar = f"data:image/png;base64,{base64.b64encode(image_user.read()).decode()}"
 
         # Inicializar estado de sesión
         if "flow_state" not in st.session_state:
@@ -31,55 +37,57 @@ class ChatApp:
 
     def set_flowstate(self, state):
         """Actualiza el estado del flujo tanto en la clase como en la sesión de Streamlit."""
-        print(f"Actualizando estado de {st.session_state.flow_state} a {state}")
+        print(f" > Actualizando estado de {st.session_state.flow_state} a {state}\n")
         st.session_state.flow_state = state
 
     def handle_response_from_introduction(self):
         """Manejador del estado de introducción."""
-        print("Ejecutando handle_response_from_introduction")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_introduction{RESET}")
         self.set_flowstate("QUESTION_1")
         self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_1'), hidden=True)
-        self.laila_response("QUESTION_1", self.history.get_messages())
+        self.laila_response(tone="solemne y maternal")
 
     def handle_response_from_question_1(self):
         """Manejador del estado QUESTION_1."""
-        print("Ejecutando handle_response_from_question_1")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_question_1{RESET}")
         self.set_flowstate("QUESTION_2")
         self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_2'), hidden=True)
-        self.laila_response("QUESTION_2", self.history.get_messages())
+        self.laila_response()
 
     def handle_response_from_question_2(self):
         """Manejador del estado QUESTION_2."""
-        print("Ejecutando handle_response_from_question_2")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_question_2{RESET}")
         self.set_flowstate("PREPARE")
         self.history.add_message("user", content=get_env_key('PROMPT_PREPARE'), hidden=True)
-        self.laila_response("PREPARE", self.history.get_messages())
+        self.laila_response("iracundo")
 
     def handle_response_from_prepare(self):
         """Manejador del estado PREPARE."""
-        print("Ejecutando handle_response_from_prepare")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_prepare{RESET}")
         self.set_flowstate("TAROT")
         self.history.add_message("user", content=get_env_key('PROMPT_TAROT'), hidden=True)
-        self.laila_response("TAROT", self.history.get_messages())
+        self.laila_response("solemne")
 
     def handle_response_from_tarot(self):
         """Manejador del estado TAROT."""
-        print("Ejecutando handle_response_from_tarot")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_tarot{RESET}")
         self.set_flowstate("FINISH")
         self.history.add_message("user", content=get_env_key('PROMPT_CONTINUE'), hidden=True)
-        self.laila_response("CONTINUE", self.history.get_messages())
+        self.laila_response("teatral")
 
     def handle_final_response(self):
         """Manejador del estado FINISH."""
-        print("Ejecutando handle_response_from_finish")
+        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_finish{RESET}")
         self.history.add_message("user", content=get_env_key('PROMPT_FINISH'), hidden=True)
-        self.laila_response("FINISH", self.history.get_messages())
+        self.laila_response("mística")
 
-    def laila_response(self, flow, history, hidden=False):
+    def laila_response(self, tone="solemne", hidden=False):
         """Procesa y muestra la respuesta del asistente."""
+        self.history.add_message("user", content=f"Sin perder tu habitual dramatismo místico y teatralidad, adoptas un tono {tone}", hidden=True)
+        history = self.history.get_messages()
         response = self.assistant.client.get_response(history)
-        if not hidden:
-            st.chat_message("assistant").markdown(f"{response}")
+        if not hidden:            
+            st.chat_message("assistant",  avatar=self.laila_avatar).markdown(f"{response}")
         self.history.add_message("assistant", content=response, hidden=hidden)
 
     def is_disrespectful(self, user_response):
@@ -104,8 +112,8 @@ class ChatApp:
         self.history.display_messages()
 
         if prompt := st.chat_input("Escribe un mensaje..."):
-            self.history.add_message("user", content=prompt)
-            st.chat_message("user").markdown(prompt)
+            self.history.add_message("user", content=prompt)            
+            st.chat_message("user",avatar=self.user_avatar).markdown(prompt)
 
             if not self.is_disrespectful(prompt):
                 current_state = st.session_state.flow_state
@@ -116,8 +124,9 @@ class ChatApp:
             else:
                 self.history.add_message("user", content="Se te ha ofendido gravemente", hidden=True)
                 self.history.add_message("user", content="Te despides dramatica y teatralmente y cierras la sesión hasta que reconsidere su lenguaje.", hidden=True)
-                self.laila_response("RESPUESTA", self.history.get_messages()) 
-                st.write("Por favor, utiliza un lenguaje respetuoso.")
+                self.laila_response("ofendida y teatral")
+                with st.container(key="ofended"):
+                    st.write("🔮 Por favor, utiliza un lenguaje respetuoso. ")
 
 # Instanciar y ejecutar la aplicación
 if __name__ == "__main__":

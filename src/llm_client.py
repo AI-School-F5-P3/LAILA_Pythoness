@@ -1,5 +1,7 @@
 from groq import Groq
-from utils import get_env_key, THINKING, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED
+from openai import OpenAI
+from utils.utils import get_env_key, THINKING, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED
+
 
 class LlmClient:
     """Clase para manejar la interacción con Groq."""
@@ -11,16 +13,24 @@ class LlmClient:
     # model = "llama3-8b-8192"
     def __init__(self, llm_model=model):
         self.llm_model = llm_model
-        groq_api_key = get_env_key('GROQ_API_KEY')
-        if not groq_api_key:
-            raise ValueError("La clave GROQ_API_KEY no está definida en las variables de entorno.")
-        self.client = Groq()
+
+        if self.llm_model.startswith("gpt-"):
+            openai_api_key = get_env_key('OPENAI_API_KEY')
+            if not openai_api_key:
+                raise ValueError("La clave OPENAI_API_KEY no está definida en las variables de entorno.")
+            self.client = OpenAI(api_key=openai_api_key)
+        else:           
+            groq_api_key = get_env_key('GROQ_API_KEY')
+            if not groq_api_key:
+                raise ValueError("La clave GROQ_API_KEY no está definida en las variables de entorno.")
+            self.client = Groq()
+        
 
     def get_response(self, messages_with_context):
         response_stream = self.client.chat.completions.create(
             messages=messages_with_context,
             model=self.llm_model,
-            temperature=0.7,
+            temperature=0.2,
             max_tokens=1024,
             top_p=1,
             stream=True
@@ -40,4 +50,3 @@ class LlmClient:
             raise ValueError("El flujo de respuesta está vacío o no contiene texto válido.")
 
         return response_text
-

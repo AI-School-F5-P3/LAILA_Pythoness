@@ -6,8 +6,8 @@ from utils.utils import local_css
 
 def main():
     # Cargar configuración y CSS
-    local_css(os.path.join(os.path.dirname(__file__), '../frontend/static', 'style.css'))
-    st.header("💬 Chat con LAILA")
+    local_css(os.path.join(os.path.dirname(__file__), '../frontend/static/css', 'style.css'))
+    st.image("frontend/static/img/laila_header.png")
     app = ChatApp()
     app.run()
 
