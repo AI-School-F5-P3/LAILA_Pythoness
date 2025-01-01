@@ -1,0 +1,58 @@
+// Variables globales
+:root {
+    --white-color: #fff;
+    --transparent-bg: rgba(0, 0, 0, 0.35);
+    --primary-bg: rgba(33, 39, 80, 0.8);
+    --primary-bg-95: rgba(33, 39, 80, 0.96);
+    --primary-color: #19d7ba;
+    --secondary-color: rgba(255, 255, 255, 0.3);
+    --tertiary-color: rgba(255, 255, 255, 0.6);
+    --gradient-bg: linear-gradient(352deg, rgb(44 0 131) 0%, rgba(33, 6, 88, 1) 33%, rgba(34, 40, 130, 1) 68%, rgba(7, 105, 148, 1) 100%);
+    --font-awesome: 'Font Awesome 5 Free';
+    --hover-transition: all 0.3s linear;
+    --border-radius: 10px;
+}
+
+// Estilo general
+body, h1 {
+    color: var(--white-color);
+}
+
+h2 {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+em {
+    color: darkmagenta;
+    display: block;
+    font-size: 0.9em;
+}
+
+header.stAppHeader {
+    background: transparent;
+}
+
+.stAppToolbar {
+    background: var(--primary-bg);
+    border-radius: var(--border-radius);
+    padding: 6px 5px;
+    color: var(--white-color);
+}
+
+img[alt="Running..."] {
+    background: white;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+div[data-testid="stImageContainer"] img {
+    border-radius: var(--border-radius);
+}
+
+.stVerticalBlock.st-key-ofended {
+    p {
+        font-size: 0.8em;
+        color: indianred;
+    }
+}
