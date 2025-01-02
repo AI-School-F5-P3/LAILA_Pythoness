@@ -1,18 +1,22 @@
 from groq import Groq
 from openai import OpenAI
+from src.faiss_index import FaissIndex
 from src.utils.utils import get_env_key
 
 
 class LlmClient:
     """Clase para manejar la interacción con Groq."""
     # model = "gpt-3.5-turbo-0125"
-    # model = "llama-3.3-70b-versatile"
-    model = "gemma2-9b-it"
+    model = "llama-3.3-70b-versatile"
+    # model = "gemma2-9b-it"
     # model = "mixtral-8x7b-32768" # No responde bien... 
     # model = "llama-3.1-8b-instant"
     # model = "llama3-8b-8192"
     def __init__(self, llm_model=model):
         self.llm_model = llm_model
+        self.index = FaissIndex()
+        self.index.load_index()
+        
 
         if self.llm_model.startswith("gpt-"):
             openai_api_key = get_env_key('OPENAI_API_KEY')
@@ -27,6 +31,18 @@ class LlmClient:
         
 
     def get_response(self, messages_with_context):
+        user_query = messages_with_context[-1]['content']
+        relevant_docs = self.index.search(user_query, top_k=3, max_characters=2000)
+        context = "\n".join(relevant_docs)
+        
+        # Verifica que el contexto no exceda el límite del modelo
+        if len(context) > 500000:
+            raise ValueError("El contexto generado es demasiado grande. Ajusta el tamaño del índice o reduce los documentos.")
+        
+        messages_with_context.append({
+            "role": "system",
+            "content": f"Usa solo esta información para responder:\n{context}"
+        })
         response_stream = self.client.chat.completions.create(
             messages=messages_with_context,
             model=self.llm_model,
