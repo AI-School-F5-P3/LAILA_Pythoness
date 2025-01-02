@@ -292,7 +292,7 @@ label, p, ul, li {
         li{
             background: var(--primary-bg-95);
             &:hover {
-                background: rgba(0, 0, 0, 0.35);
+                background: var(--transparent-bg);
             }
         }
         
