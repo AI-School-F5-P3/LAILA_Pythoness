@@ -1,0 +1,6 @@
+keras-ocr
+tensorflow-cpu
+pdf2image
+python-dotenv
+
+numpy==1.26.4
