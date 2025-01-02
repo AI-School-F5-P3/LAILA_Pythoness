@@ -1,6 +1,6 @@
 // Variables
 :root {
-    --white-color: #fff;
+    --white-color: #f9f6f6;
     --transparent-bg: rgba(0, 0, 0, 0.35);
     --primary-bg: rgba(33, 39, 80, 0.8);
     --primary-bg-95: rgba(33, 39, 80, .96);
@@ -8,7 +8,7 @@
     --secondary-color: rgba(255, 255, 255, 0.3);
     --terthiary-color: rgba(255, 255, 255, 0.6);
     --angle: 300deg;
-    --gradient-bg: linear-gradient(var(--angle), rgb(0, 50, 22) 0%, rgba(33, 6, 88, 1) 33%, rgb(16, 21, 82) 68%, rgb(47, 5, 105) 100%);
+    --gradient-bg: linear-gradient(var(--angle), rgb(30, 75, 2) 0%, rgba(33, 6, 88, 1) 33%, rgb(16, 21, 82) 68%, rgb(47, 5, 105) 100%);
     --font-awesome: 'Font Awesome 5 Free';
     --hover-transition: all 0.3s linear;
     --border-radius: 10px;
@@ -24,8 +24,7 @@ h2 {
 }
 em {
     color: #fff7ba;
-    display: block;
-    font-size: .92em;
+    font-size: .95em;
     opacity: .9;
 }
 
@@ -40,6 +39,22 @@ header {
     border-radius: var(--border-radius);
     padding: 6px 5px;
     color: var(--white-color);
+}
+
+.stSpinner {
+    > div {
+        height: 50vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    i{
+        background: linear-gradient(#0000009e, #52006c52) padding-box, linear-gradient(rgba(78, 42, 5, .49) 0%, rgba(53, 0, 62, .37) 33%, #2f056900 60%) border-box;
+        border-radius: 100%;
+        border: 2px solid transparent;
+        width: 9vw;
+        height: 9vw;
+    }
 }
 
 img {
@@ -110,6 +125,8 @@ img {
     box-shadow: inset 0px 0px 600px rgba(0, 0, 0, 1);
     > * {
         position: absolute;
+        interpolate-size: allow-keywords;
+        transition: all 0.3 linear;
     }
     * {
         transition: all .3 ease-in-out;
@@ -187,10 +204,13 @@ img {
     padding: 1rem 3rem;
 }
 
-[data-baseweb="base-input"],
 [data-testid="stChatInput"] {
-    background: transparent;
-    padding: 0 1rem;
+    background: #28036e50;
+    margin: 0 2vw;
+    width: calc(100% - 4vw);
+    textarea{
+        color: var(--white-color);
+    }
 }
 
 [placeholder] {
@@ -201,15 +221,19 @@ img {
     }
 }
 
-[data-baseweb="textarea"],
-[data-baseweb="base-input"],
-[data-baseweb="input"] {
+[data-baseweb="base-input"]{
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+[data-baseweb="textarea"]{
     border: none;
     background: none;
     width: 100% !important;
     max-width: 100%;
     [data-baseweb="base-input"] textarea {
-        background: transparent;
+        background: none;
         border: none;
         transition: var(--hover-transition);
         caret-color: var(--primary-color);
@@ -218,7 +242,6 @@ img {
 }
 
 [data-testid="stNumberInputContainer"],
-[data-baseweb="textarea"] [data-baseweb="base-input"] textarea,
 [data-baseweb="input"] [data-baseweb="base-input"] input:not([type="number"]) {
     background: var(--transparent-bg);
     border: none;
