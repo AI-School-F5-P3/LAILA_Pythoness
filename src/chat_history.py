@@ -1,6 +1,6 @@
 import streamlit as st
 import base64
-from utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
+from src.utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
 
 
 
@@ -31,7 +31,7 @@ class ChatHistory:
 
     def display_message(self, message):
         """Muestra un único mensaje."""
-        print(f"{PASTEL_YELLOW}🔮 Mensaje de: {RESET}{message["role"]}\n {PASTEL_YELLOW}")
+        # print(f"{PASTEL_YELLOW}🔮 Mensaje de: {RESET}{message["role"]}\n {PASTEL_YELLOW}")
         
         if message["role"] == "user":
             self.avatar = self.user_avatar

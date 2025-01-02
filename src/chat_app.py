@@ -1,9 +1,9 @@
 import streamlit as st
-from llm_client import LlmClient
-from assistant import Assistant
-from chat_history import ChatHistory
-from utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
 import base64
+from src.llm_client import LlmClient
+from src.assistant import Assistant
+from src.chat_history import ChatHistory
+from src.utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
 
 class ChatApp:
     """Clase principal que orquesta el funcionamiento de la aplicación."""
@@ -41,43 +41,43 @@ class ChatApp:
         st.session_state.flow_state = state
 
     def handle_response_from_introduction(self):
-        """Manejador del estado de introducción."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_introduction{RESET}")
+        """Manejador del estado INTRODUCTION."""
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} INTRODUCTION")
         self.set_flowstate("QUESTION_1")
         self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_1'), hidden=True)
         self.laila_response(tone="solemne y maternal")
 
     def handle_response_from_question_1(self):
         """Manejador del estado QUESTION_1."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_question_1{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} QUESTION_1")
         self.set_flowstate("QUESTION_2")
         self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_2'), hidden=True)
         self.laila_response()
 
     def handle_response_from_question_2(self):
         """Manejador del estado QUESTION_2."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_question_2{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} QUESTION_2")
         self.set_flowstate("PREPARE")
         self.history.add_message("user", content=get_env_key('PROMPT_PREPARE'), hidden=True)
         self.laila_response("iracundo")
 
     def handle_response_from_prepare(self):
         """Manejador del estado PREPARE."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_prepare{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} PREPARE")
         self.set_flowstate("TAROT")
         self.history.add_message("user", content=get_env_key('PROMPT_TAROT'), hidden=True)
         self.laila_response("solemne")
 
     def handle_response_from_tarot(self):
         """Manejador del estado TAROT."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_tarot{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} TAROT{RESET}")
         self.set_flowstate("FINISH")
         self.history.add_message("user", content=get_env_key('PROMPT_CONTINUE'), hidden=True)
         self.laila_response("teatral")
 
     def handle_final_response(self):
         """Manejador del estado FINISH."""
-        print(f"\n{PASTEL_YELLOW}{RAISED_HAND} Ejecutando handle_response_from_finish{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Paso activo:{RESET} FINISH{RESET}")
         self.history.add_message("user", content=get_env_key('PROMPT_FINISH'), hidden=True)
         self.laila_response("mística")
 

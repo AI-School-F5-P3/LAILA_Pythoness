@@ -1,6 +1,6 @@
 from groq import Groq
 from openai import OpenAI
-from utils.utils import get_env_key, THINKING, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED
+from src.utils.utils import get_env_key
 
 
 class LlmClient:
