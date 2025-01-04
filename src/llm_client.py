@@ -6,8 +6,8 @@ from src.utils.utils import get_env_key
 class LlmClient:
     """Clase para manejar la interacción con Groq."""
     # model = "gpt-3.5-turbo-0125"
-    model = "llama-3.3-70b-versatile"
-    # model = "gemma2-9b-it"
+    # model = "llama-3.3-70b-versatile"
+    model = "gemma2-9b-it"
     # model = "mixtral-8x7b-32768" # No responde bien... 
     # model = "llama-3.1-8b-instant"
     # model = "llama3-8b-8192"

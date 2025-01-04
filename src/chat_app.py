@@ -14,6 +14,20 @@ class ChatApp:
         self.client = LlmClient()
         self.assistant = Assistant(self.client)
         self.history = ChatHistory()
+
+        # Inicializar valores usando st.session_state
+        if "cards" not in st.session_state:
+            st.session_state.cards = ["El Sol", "La Emperatriz", "El Loco", "La Estrella", "El Mundo", "El Mago"]
+        if "asking" not in st.session_state:
+            st.session_state.asking = "¿Encontraré el amor este año?"
+        if "info" not in st.session_state:
+            st.session_state.info = "Teletrabajo en informática y no salgo nunca de casa."
+
+        # Asignar los valores al estado interno del objeto
+        self.cards = st.session_state.cards
+        self.asking = st.session_state.asking
+        self.info = st.session_state.info
+
         if "step" not in st.session_state:
             st.session_state.step = 0
         self.flow_manager = FlowManager(st.session_state.step, max_steps=10)
@@ -67,8 +81,9 @@ class ChatApp:
         """Manejador del estado QUESTION_1."""
         self.advance_local_step()
         print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} QUESTION_1")
-        last_message = self.history.get_messages()[-1]["content"]
-        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
+        st.session_state.asking = self.history.get_messages()[-1]["content"]
+        self.asking = st.session_state.asking
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo(self.asking):{RESET} {self.asking}")
         self.set_flowstate("QUESTION_2")
         self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_2'), hidden=True)
         self.laila_response()
@@ -77,11 +92,12 @@ class ChatApp:
         """Manejador del estado QUESTION_2."""
         self.advance_local_step()
         print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} QUESTION_2") 
-        last_message = self.history.get_messages()[-1]["content"]
-        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
+        st.session_state.info = self.history.get_messages()[-1]["content"]
+        self.info = st.session_state.info
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo(self.info):{RESET} {self.info}")
         self.set_flowstate("PREPARE")
         response = self.rag.ask_question("¿En que consiste la piramide invertida de 6 cartas?")
-        print(f"{BRIGHT_GREEN}Contexto: {response}{RESET}")
+        # print(f"{BRIGHT_GREEN}Contexto: {response}{RESET}")
         self.history.add_message("system", content=response, hidden=True)  
         self.history.add_message("user", content=get_env_key('PROMPT_PREPARE'), hidden=True)
         self.laila_response("solemne")
@@ -90,10 +106,14 @@ class ChatApp:
         """Manejador del estado PREPARE."""
         self.advance_local_step()
         print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} PREPARE")
+        self.set_flowstate("TAROT")
         last_message = self.history.get_messages()[-1]["content"]
         print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
+        #tirada
+        tirada = self.assistant.use_tool("laila_tarot_reading", self.cards, self.asking, self.info)
+        print(f"\n{TURQUOISE}✨ RESULTADO DE LA TIRADA:{RESET}\n{tirada}")
 
-        self.set_flowstate("TAROT")
+        
         self.history.add_message("user", content=get_env_key('PROMPT_TAROT'), hidden=True)
         self.laila_response("solemne")
 

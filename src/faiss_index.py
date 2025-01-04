@@ -7,7 +7,7 @@ from charset_normalizer import detect
 from nltk.tokenize import sent_tokenize
 
 class FaissIndex:
-    def __init__(self, model_name='all-MiniLM-L6-v2', data_dir="data", index_file="faiss_index.pkl", fragment_size=1000):
+    def __init__(self, model_name='all-MiniLM-L6-v2', data_dir="context", index_file="data/faiss_index.pkl", fragment_size=1000):
         self.model = SentenceTransformer(model_name)
         self.data_dir = data_dir
         self.index_file = index_file

@@ -1,6 +1,7 @@
-from src.utils.utils import get_env_key, WORLD, RED, RESET, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
 import requests
 import pycountry
+from src.utils.utils import get_env_key, WORLD, RED, RESET, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
+from src.tarot_reader import TarotReader
 
 class Assistant:
     """Clase que configura la personalidad y el flujo del asistente."""
@@ -20,7 +21,8 @@ class Assistant:
         # Registro de herramientas
         self.tools = {
             "detect_country": self.detect_country_tool,
-            "generate_welcome_message": self.generate_welcome_message_tool
+            "generate_welcome_message": self.generate_welcome_message_tool,
+            "laila_tarot_reading": self.laila_tarot_reading_tool
         }
 
     def detect_country_tool(self):
@@ -64,6 +66,13 @@ class Assistant:
             {"role": "user", "content": f"{prompt} Genera el mensaje en {language}."}
         ]
         return self.client.get_response(messages_with_context)
+
+    def laila_tarot_reading_tool(self,cards, asking, info):
+        # cards = ["El Sol","La Emperatriz","El Loco","La Estrella","El Mundo","El Mago"]
+        # asking = "¿Encontraré el amor este año?"
+        # info = "Teletrabajo en informatica y no salgo nunca de casa."
+        print(f"\n**********************\n{BRIGHT_GREEN}{cards},{asking},{info}{RESET}\n**********************\n")
+        return TarotReader().tirada(cards, asking, info)
 
     def use_tool(self, tool_name, *args):
         """Invoca una herramienta registrada."""

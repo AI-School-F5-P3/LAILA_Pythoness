@@ -5,11 +5,12 @@ import streamlit as st
 
 # Definición de colores e iconos
 # Definición de colores e iconos
-BRIGHT_GREEN = "\033[92m"
+
 TURQUOISE = "\033[38;5;87m"
 PASTEL_YELLOW = "\033[38;5;187m"
 RED = "\033[31m"
 BLUE = "\033[34m"
+BRIGHT_GREEN = "\033[92m"
 BRIGHT_BLUE = "\033[94m"
 BRIGHT_MAGENTA = "\033[95m"
 BRIGHT_CYAN = "\033[96m"

@@ -1,7 +1,8 @@
 from src.rag import RAG
 from src.llm_client import LlmClient
+from src.utils.utils import BLUE, PURPLE, RESET, RED, PASTEL_YELLOW
 
-class TarotRAG:
+class TarotReader:
     def __init__(self):
         self.rag = RAG()  # Carga el índice una vez al crear la instancia
         self.llm_client = LlmClient()
@@ -10,6 +11,7 @@ class TarotRAG:
         response = self.rag.ask_question(question)
         return response  # Retorna la respuesta correctamente
     def tirada(self,cards,asking,info):
+        print(f"\n**********************\n{PURPLE}{cards},{asking},{info}{RESET}\n**********************\n")
         # Utilizando un bucle para recopilar la información de todas las cartas
         cards_info = [self.rag_question(f"Dame toda la información sobre la carta {card}") for card in cards]
         # Agregando la explicación de la tirada al final
