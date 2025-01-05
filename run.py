@@ -6,7 +6,7 @@ import webbrowser
 from pathlib import Path
 
 from src.utils.utils import BLUE, RESET
-# from frontend.scss_watcher import watch_scss
+from frontend.scss_watcher import watch_scss
 
 os.environ["PYTHONPATH"] = str(Path(".").resolve())
 
@@ -17,8 +17,8 @@ def main():
     # Iniciar Streamlit
     print(f"\n{BLUE}🃏 Iniciando aplicación Streamlit...{RESET}\n")
     frontend_process = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", str(main_path / "app.py")],  # Especificar el archivo directamente
-        cwd="."  # Asegurar que el directorio raíz sea el contexto
+        [sys.executable, "-m", "streamlit", "run", str(main_path / "app.py"), "--server.runOnSave=False"],  
+        cwd="."  
     )
     
     # Abrir el navegador
@@ -30,12 +30,6 @@ def main():
 
     # watch_scss(SCSS_DIRECTORY, CSS_DIRECTORY) 
 
-# def main():
-#     tarot_rag = TarotRAG()
-#     cards = ["El Sol","La Emperatriz","El Loco","La Estrella","El Mundo","El Mago"]
-#     asking = "¿Encontraré el amor este año?"
-#     info = "Teletrabajo en informatica y no salgo nunca de casa."
-#     tarot_rag.tirada(self,cards, asking, info)
 
 if __name__ == "__main__":
     main()

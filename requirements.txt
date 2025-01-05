@@ -4,18 +4,8 @@ sentence_transformers
 openai
 groq
 streamlit
-pypdf     
-
-
-
-
-
-
-
+pypdf
+libsass    
 
 langchain_community
 langchain_huggingface
-
-
-
-pandas

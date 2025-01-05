@@ -1,11 +1,13 @@
 import requests
 import pycountry
+import streamlit as st
+from src.llm_client import LlmClient
 from src.utils.utils import get_env_key, WORLD, RED, RESET, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
 from src.tarot_reader import TarotReader
 
 class Assistant:
     """Clase que configura la personalidad y el flujo del asistente."""
-    def __init__(self, client):
+    def __init__(self):
         try:
             # Cargar el prompt inicial de LAILA
             prompt_file = get_env_key("PROMPT_FILE")
@@ -15,15 +17,20 @@ class Assistant:
             raise ValueError("Error: No se encontró el archivo de prompt.")
         
         self.personality = base_prompt
-        self.client = client
+        self.client = LlmClient()
         self.welcome_message = None
         
         # Registro de herramientas
-        self.tools = {
-            "detect_country": self.detect_country_tool,
-            "generate_welcome_message": self.generate_welcome_message_tool,
-            "laila_tarot_reading": self.laila_tarot_reading_tool
-        }
+        if "tools" not in st.session_state:
+            st.session_state.tools = {
+                "detect_country": self.detect_country_tool,
+                "generate_welcome_message": self.generate_welcome_message_tool,
+                "is_comprensible_message": self.is_comprensible_message_tool,
+                "laila_tarot_reading": self.laila_tarot_reading_tool
+            }
+
+        self.tools = st.session_state.tools
+
 
     def detect_country_tool(self):
         """Detecta el país y el idioma del usuario utilizando su IP."""
@@ -67,15 +74,28 @@ class Assistant:
         ]
         return self.client.get_response(messages_with_context)
 
-    def laila_tarot_reading_tool(self,cards, asking, info):
-        # cards = ["El Sol","La Emperatriz","El Loco","La Estrella","El Mundo","El Mago"]
-        # asking = "¿Encontraré el amor este año?"
-        # info = "Teletrabajo en informatica y no salgo nunca de casa."
-        print(f"\n**********************\n{BRIGHT_GREEN}{cards},{asking},{info}{RESET}\n**********************\n")
-        return TarotReader().tirada(cards, asking, info)
+    def laila_tarot_reading_tool(self,asking, info):
+        return TarotReader().reading(asking, info)
+
+    # Verificacion de mensajes de chat
+    def is_comprensible_message_tool(self, user_response):
+        """Verifica si la respuesta del usuario contiene se entiende."""
+        comprensible_prompt = (
+            f"El usuario ha dicho: '{user_response}'\n"
+            "¿Se entiende esta respuesta? Responde únicamente 'Sí' o 'No'."
+        )
+        response = self.client.get_response([
+            {"role": "user", "content": comprensible_prompt}
+        ])
+
+        response =  'sí' in response.strip().lower()
+
+        print(f"\n{PASTEL_YELLOW}{THINKING} Se entiende la respuesta?{RESET} {response}")  # Imprime la respuesta completa del LLM para depuración
+
+        return response
 
     def use_tool(self, tool_name, *args):
-        """Invoca una herramienta registrada."""
-        if tool_name in self.tools:
-            return self.tools[tool_name](*args)
+        """Invoca una herramienta registrada desde st.session_state con control de ejecución."""
+        if tool_name in st.session_state.tools:
+            return st.session_state.tools[tool_name](*args)
         return f"Herramienta '{tool_name}' no encontrada."
