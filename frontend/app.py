@@ -8,17 +8,9 @@ import base64
 def main():
         # Cargar configuración y CSS
         local_css(os.path.join(os.path.dirname(__file__), 'static/css', 'styles.css'))
-        # with st.container(key="header"):
-        # Mostrar spinner mientras se carga la imagen
+
         with st.container(key="header"):
             try:
-                # import time
-                # time.sleep(0)
-                # # Simula la carga de la imagen (puedes optimizar según tu caso)
-                # image_path = "frontend/static/img/laila_header.png"
-                # if os.path.exists(image_path):
-                #     image = Image.open(image_path)
-                #     st.image(image)
                 # Ruta de la imagen
                 image_path = "frontend/static/img/laila_header.png"
 
@@ -37,8 +29,7 @@ def main():
                         </style>
                         """
 
-                        # Insertar el CSS en la aplicación
-                        
+                        # Insertar en la aplicación                        
                         st.markdown(header_bg_img, unsafe_allow_html=True)
                 else:
                     st.error("No se encontró la imagen.")
