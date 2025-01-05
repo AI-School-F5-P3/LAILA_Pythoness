@@ -42,32 +42,32 @@ header {
     color: var(--white-color);
 }
 
-.stSpinner {
-    position: fixed;
-    top: 0;
-    z-index: 3;
-    > div {
-        height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    i{
-        background: var(--gradient-bg2);
-        border-radius: 100%;
-        border: 2px solid transparent;
-        width: 9vw;
-        height: 9vw;
-    }
-}
+// .stSpinner {
+//     position: fixed;
+//     top: 0;
+//     z-index: 3;
+//     > div {
+//         height: 50vh;
+//         display: flex;
+//         align-items: center;
+//         justify-content: center;
+//     }
+//     i{
+//         background: var(--gradient-bg2);
+//         border-radius: 100%;
+//         border: 2px solid transparent;
+//         width: 9vw;
+//         height: 9vw;
+//     }
+// }
 
-img {
-    &[alt="Running..."] {
-        background: white;
-        border-radius: 5px;
-        padding: 5px;
-    }
-}
+// img {
+//     &[alt="Running..."] {
+//         background: white;
+//         border-radius: 5px;
+//         padding: 5px;
+//     }
+// }
 
 .stVerticalBlock {
     @keyframes appear {
