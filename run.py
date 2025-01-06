@@ -28,7 +28,7 @@ def main():
     SCSS_DIRECTORY = "frontend/static/scss"  # Directorio SCSS
     CSS_DIRECTORY = "frontend/static/css"    # Directorio CSS
 
-    # watch_scss(SCSS_DIRECTORY, CSS_DIRECTORY) 
+    watch_scss(SCSS_DIRECTORY, CSS_DIRECTORY) 
 
 
 if __name__ == "__main__":
