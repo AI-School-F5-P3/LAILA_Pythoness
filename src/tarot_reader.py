@@ -6,7 +6,7 @@ from src.utils.utils import get_env_key, BLUE, PURPLE, RESET, RED, PASTEL_YELLOW
 class TarotReader:
     def __init__(self):
         self.rag = RAG()  # Carga el índice una vez al crear la instancia
-        self.llm_client = LlmClient()
+        self.llm_client = LlmClient(ll_model = "gpt-3.5-turbo-0125")
         # Lista de cartas del Tarot almacenada correctamente como un atributo de la instancia
         self.tarot_cards = [
             "El Loco", "El Mago", "La Sacerdotisa", "La Emperatriz", "El Emperador", 
@@ -62,7 +62,7 @@ class TarotReader:
         # Interacción con el modelo LLM
         conversation_history = []
         question = f"Se ha hecho una tirada (Piramide invertida de 6 cartas) y han salido en este orden: {cards}. Pregunta: {asking}. Info adicional: {info}. (Realiza la tirada de forma dramática, esotérica y teatral, puedes usar emojis)"
-        print(f"{PURPLE}Se ha hecho una tirada (Piramide invertida de 6 cartas) y han salido en este orden:\n{RESET}{cards}.\n{PURPLE}Pregunta:{RESET} {asking}.\n {PURPLE}Info adicional:{RESET} {info}.")
+        print(f"\n{PURPLE}Se ha hecho una tirada (Piramide invertida de 6 cartas) y han salido en este orden:\n{RESET}{cards}\n{PURPLE}Pregunta:{RESET} {asking}.\n{PURPLE}Info adicional:{RESET} {info}.")
         conversation_history.append({"role": "system", "content": f"{get_env_key('PROMPT_FILE')}"})
         conversation_history.append({"role": "system", "content": f"## CONTEXTO:\n{info_cards}"})
         conversation_history.append({"role": "user", "content": question})
