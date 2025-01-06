@@ -41,6 +41,14 @@ El modelo utiliza una técnica de persistencia de estado para recordar las inter
 Para mantener a LAILA centrada en su propósito esotérico y evitar desviaciones temáticas, se han implementado restricciones de conversación a nivel de agentes. Si el usuario intenta desviar la conversación a temas ajenos, o introduce texto ininteligible, el modelo responderá con firmeza, redirigiendo la interacción.
 LAILA tiene una personalidad muy definida, no hay que tocarle las narices… o “te pondrá dos velas negras” 🕯️🌑🕯️😉.
 
+### ✨ Idiomas
+El archivo detecta el idioma del usuario utilizando su dirección IP. Esto ocurre de la siguiente manera:
+
+Obtener la IP del usuario: El asistente hace una solicitud a http://ip-api.com/json/, un servicio web que proporciona información sobre la ubicación geográfica del usuario basada en su IP.
+Extraer el país y el código del país: Si la solicitud es exitosa, se extraen el país y el código del país (por ejemplo, “ES” para España).
+Determinar el idioma: Con el código de país, la función get_language_from_country utiliza la librería pycountry para buscar el idioma principal asociado a ese país. Si no se encuentra un idioma, se establece inglés por defecto.
+Resultado: Devuelve el país, el código del país y el idioma principal, que luego se usa para personalizar los mensajes en el idioma del usuario.
+
 ### ✨ Arquitectura Técnica
 
 ```python
