@@ -1,6 +1,11 @@
-keras-ocr
-tensorflow-cpu
-pdf2image
-python-dotenv
+nltk==3.8.1
+faiss-cpu 
+sentence_transformers
+openai
+groq
+streamlit
+pypdf
+libsass    
 
-numpy==1.26.4
+langchain_community
+langchain_huggingface

@@ -7,8 +7,9 @@
     --primary-color: #19d7ba;
     --secondary-color: rgba(255, 255, 255, 0.3);
     --terthiary-color: rgba(255, 255, 255, 0.6);
-    --angle: 300deg;
-    --gradient-bg: linear-gradient(var(--angle), rgb(30, 75, 2) 0%, rgba(33, 6, 88, 1) 33%, rgb(16, 21, 82) 68%, rgb(47, 5, 105) 100%);
+    --angle: 60deg;
+    --gradient-bg: linear-gradient(var(--angle), rgb(30, 75, 2) 0%, rgba(33, 6, 88, 1) 33%, rgb(16, 21, 82) 68%, rgb(150, 5, 97) 100%);
+    --gradient-bg2: linear-gradient(#0000009e, #52006c52) padding-box, linear-gradient(rgba(78, 42, 5, .49) 0%, rgba(53, 0, 62, .37) 33%, #2f056900 60%) border-box;
     --font-awesome: 'Font Awesome 5 Free';
     --hover-transition: all 0.3s linear;
     --border-radius: 10px;
@@ -41,27 +42,40 @@ header {
     color: var(--white-color);
 }
 
-.stSpinner {
-    > div {
-        height: 50vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    i{
-        background: linear-gradient(#0000009e, #52006c52) padding-box, linear-gradient(rgba(78, 42, 5, .49) 0%, rgba(53, 0, 62, .37) 33%, #2f056900 60%) border-box;
-        border-radius: 100%;
-        border: 2px solid transparent;
-        width: 9vw;
-        height: 9vw;
-    }
-}
+// .stSpinner {
+//     position: fixed;
+//     top: 0;
+//     z-index: 3;
+//     > div {
+//         height: 50vh;
+//         display: flex;
+//         align-items: center;
+//         justify-content: center;
+//     }
+//     i{
+//         background: var(--gradient-bg2);
+//         border-radius: 100%;
+//         border: 2px solid transparent;
+//         width: 9vw;
+//         height: 9vw;
+//     }
+// }
 
-img {
-    &[alt="Running..."] {
-        background: white;
-        border-radius: 5px;
-        padding: 5px;
+// img {
+//     &[alt="Running..."] {
+//         background: white;
+//         border-radius: 5px;
+//         padding: 5px;
+//     }
+// }
+@keyframes appear {
+    0% {
+        // background-position: 0% -100%;
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+        // background-position: 0% 0%;
     }
 }
 
@@ -70,6 +84,23 @@ img {
         position: fixed;
         top: 0;
         z-index: 3;
+        height: 50vh;
+        max-height: 100%;
+        width: 75rem;
+        background-size: cover;
+        background-position: center bottom;
+        background-repeat: no-repeat;
+    }
+    @keyframes gradient {
+        0% {
+        background-position: 100% 100%;
+        }
+        50% {
+        background-position: 0% 0%;
+        }
+        100% {
+        background-position: 0% 0%;
+        }
     }
     &.st-key-ofended {
         p {
@@ -81,7 +112,7 @@ img {
 }
 
 [data-testid="stChatMessage"] {
-    &:nth-child(even) {
+    &:nth-of-type(even) {
         flex-direction: row-reverse;
         text-align: right;
         background: #28036e42;
@@ -99,7 +130,7 @@ img {
 }
 
 .stMain {
-    width: 54vw;
+    width: 75rem;
     left: 0;
     right: 0;
     margin: 0 auto;
@@ -107,7 +138,9 @@ img {
     background-color: var(--transparent-bg);
     box-shadow: 0 0 200px #d788432e;
     height: 100vh;
-    padding: 22vw 0 0 0;
+    padding: 50vh 0 0 0;
+    // animation: appear 15s ease;
+    // animation-iteration-count: 1;
 }
 
 .stBottom {
@@ -123,13 +156,16 @@ img {
 .stAppViewContainer {
     background: var(--gradient-bg);
     box-shadow: inset 0px 0px 600px rgba(0, 0, 0, 1);
+    animation: gradient 15s ease infinite;
+    background-size: 400% 400%;
+    background-attachment: fixed;
     > * {
         position: absolute;
-        interpolate-size: allow-keywords;
-        transition: all 0.3 linear;
+        transition: all 0.3s linear;
     }
     * {
-        transition: all .3 ease-in-out;
+        transition: all .3s ease-in-out;
+        interpolate-size: allow-keywords;
     }
     &:before {
         display: block;
@@ -199,9 +235,27 @@ img {
     max-width: 100%;
     padding: 0 0 3rem 0;
 }
+@keyframes appear-message {
+    0% { 
+        opacity: 0;
+        transform: translateY(50px);
+     }
+    100% { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
 
 .stChatMessage {
     padding: 1rem 3rem;
+    &:last-child{
+        opacity: 0;
+        animation: appear-message 1s ease-in-out 1; /* La animación dura 2 segundos y se ejecuta solo una vez */
+        animation-iteration-count: 1; 
+        animation-fill-mode: forwards; 
+    }
+    
 }
 
 [data-testid="stChatInput"] {

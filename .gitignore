@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+*.pkl
 
 # Distribution / packaging
 .Python
@@ -164,3 +165,5 @@ cython_debug/
 
 pruebas/
 no/
+
+
