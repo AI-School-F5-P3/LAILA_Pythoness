@@ -15,30 +15,45 @@ class RAG:
         self.index_file = index_file
         self.docs = []
 
-        # Intentar cargar índice FAISS desde archivo solo si no está ya cargado
+        # Controlar carga de FAISS usando st.session_state y cache
         if "faiss_index_loaded" not in st.session_state:
             st.session_state.faiss_index_loaded = False
             st.session_state.db = None
             st.session_state.retriever = None
 
         if not st.session_state.faiss_index_loaded:
-            if os.path.exists(self.index_file):
-                print(f"\n🌀 {BLUE}Cargando índice FAISS desde archivo...{RESET}\n")
-                with open(self.index_file, 'rb') as f:
-                    st.session_state.db = pickle.load(f)
-                    st.session_state.retriever = st.session_state.db.as_retriever(search_kwargs={"k": 4})
-                st.session_state.faiss_index_loaded = True
-            else:
-                print("\n📍 El archivo de índice no existe. Creando un nuevo índice FAISS...")
-                self._create_index(data_dir)
+            self._load_or_create_index(data_dir)
         else:
             print(f"\n✅ {PASTEL_YELLOW}Índice FAISS ya cargado.{RESET}")
             self.db = st.session_state.db
             self.retriever = st.session_state.retriever
 
-
         # Inicializar LLM Client
         self.llm_client = LlmClient()
+
+    # @st.cache_data
+    # def _load_or_create_index(_self, data_dir):
+    #     if os.path.exists(_self.index_file):
+    #         print(f"\n🌀 {BLUE}Cargando índice FAISS desde archivo...{RESET}\n")
+    #         with open(_self.index_file, 'rb') as f:
+    #             st.session_state.db = pickle.load(f)
+    #             st.session_state.retriever = st.session_state.db.as_retriever(search_kwargs={"k": 4})
+    #         st.session_state.faiss_index_loaded = True
+    #     else:
+    #         print("\n📍 El archivo de índice no existe. Creando un nuevo índice FAISS...")
+    #         _self._create_index(data_dir)
+
+    def _load_or_create_index(_self, data_dir):
+        """Carga el índice FAISS sin spinner ni caché"""
+        if os.path.exists(_self.index_file):
+            with open(_self.index_file, 'rb') as f:
+                st.session_state.db = pickle.load(f)
+                st.session_state.retriever = st.session_state.db.as_retriever(search_kwargs={"k": 4})
+            st.session_state.faiss_index_loaded = True
+        else:
+            _self._create_index(data_dir)
+
+
 
     def _create_index(self, data_dir):
         # Cargar documentos desde la carpeta 'data'
@@ -71,6 +86,9 @@ class RAG:
         # Crear FAISS con todos los documentos
         self.db = FAISS.from_documents(self.docs, self.embeddings)
         self.retriever = self.db.as_retriever(search_kwargs={"k": 4})
+        st.session_state.db = self.db
+        st.session_state.retriever = self.retriever
+        st.session_state.faiss_index_loaded = True
         print(f"🗂️{PURPLE} FAISS creado con {len(self.docs)} documentos.{RESET}")
 
         # Guardar índice FAISS en archivo
@@ -111,7 +129,5 @@ class RAG:
 
 if __name__ == "__main__":
     rag_chat = RAG()
-    # response = rag_chat.ask_question("¿En que consiste la piramide invertida de 6 cartas? Responde solo en base al contexto que se te proporcione. No inventes información ni supongas lo que no está dicho. Si algo escapa a tu alcance, simplemente decláralo con la sinceridad de los arcanos. Recuerda, las verdades se revelan, no se fabrican. Si no tienes informacion, responde unicamente '.'") 
     response = rag_chat.ask_question("¿En que consiste la piramide invertida de 6 cartas?")
     print("Respuesta:", response)
-

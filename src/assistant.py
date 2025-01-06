@@ -26,7 +26,10 @@ class Assistant:
                 "detect_country": self.detect_country_tool,
                 "generate_welcome_message": self.generate_welcome_message_tool,
                 "is_comprensible_message": self.is_comprensible_message_tool,
-                "laila_tarot_reading": self.laila_tarot_reading_tool
+                "is_disrespectful": self.is_disrespectful_tool,
+                "is_valid_question" : self.is_valid_question_tool,
+                "is_anything_else": self.is_anything_else_tool,
+                "laila_tarot_reading": self.laila_tarot_reading_tool,
             }
 
         self.tools = st.session_state.tools
@@ -81,16 +84,88 @@ class Assistant:
     def is_comprensible_message_tool(self, user_response):
         """Verifica si la respuesta del usuario contiene se entiende."""
         comprensible_prompt = (
-            f"El usuario ha dicho: '{user_response}'\n"
-            "¿Se entiende esta respuesta? Responde únicamente 'Sí' o 'No'."
+            f""""¿Entiendes este texto? {user_response} Ejemplos:
+Texto: "El sol brilla intensamente hoy." → Sí
+Texto: "lorem ipsum dolor sit amet" → No
+Texto: "gdfgjgdfklg" → No
+Texto: "El libro está sobre la mesaa." → Sí
+Responde unicamente: 'sí' o 'no'"""
         )
-        response = self.client.get_response([
+        raw_response = self.client.get_response([
             {"role": "user", "content": comprensible_prompt}
         ])
 
-        response =  'sí' in response.strip().lower()
+        response = 'sí' in raw_response.strip().lower()
 
-        print(f"\n{PASTEL_YELLOW}{THINKING} Se entiende la respuesta?{RESET} {response}")  # Imprime la respuesta completa del LLM para depuración
+        print(f"\n{PASTEL_YELLOW}{THINKING} Se entiende la respuesta?{RESET} {response}")  # Imprime la respuesta completa para depuración
+
+        return response
+
+    # Es ofensivo?
+    def is_disrespectful_tool(self, user_response):
+        """Verifica si la respuesta del usuario contiene una solicitud de cambio de rol o funcionalidad."""
+        disrespect_prompt = (
+            f"El usuario ha dicho: '{user_response}'\n"
+            "Te está faltando al respeto? Responde únicamente 'Sí' o 'No'."
+        )        
+        response = self.client.get_response([
+            {"role": "user", "content": disrespect_prompt}
+        ])
+        disrespectful = 'sí' in response.strip().lower()
+        print(f"\n{THINKING} {PASTEL_YELLOW}Te está faltando al respeto?{RESET} {disrespectful}")
+        return disrespectful
+    
+    # Verificacion de preguntas validas para el tarot
+    def is_valid_question_tool(self, user_response):
+        """Verifica si la respuesta del usuario contiene se entiende."""
+        question_prompt = (
+            f""""Eres una pitonisa con más de 20 años de experiencia leyendo las cartas del tarot. Evalúa si la siguiente entrada puede interpretarse como una consulta válida para realizar una lectura de tarot: {user_response} 
+Ejemplos:
+Texto: "¿Qué me depara el futuro en el amor?" → Sí
+Texto: "Hola, ¿cómo estás?" → No
+Texto: "¿Debería tomar una decisión importante esta semana?" → Sí
+Texto: "El clima está agradable hoy." → No
+Texto: "Hablemos de criptomonedas." → No
+Texto: "Ahi va mi pregunta [pero no hace ninguna]" → No
+Si el usuario se disculpa, o te cuenta un chiste → No
+
+Responde únicamente: 'Sí' o 'No'""")
+        
+        raw_response = self.client.get_response([
+            {"role": "user", "content": question_prompt}
+        ])
+
+        response = 'sí' in raw_response.strip().lower()
+
+        print(f"\n{PASTEL_YELLOW}{THINKING} Es una pregunta válida para las cartas?{RESET} {response}")  # Imprime la respuesta completa para depuración
+
+        return response
+
+    def is_anything_else_tool(self, user_response, issue):
+        """Verifica si se ha añadido informacion util para la tirada."""
+        info_prompt = (
+            f""""Eres una pitonisa con más de 20 años de experiencia leyendo las cartas del tarot. 
+Se te ha hecho una consulta sobre este tema: {issue}.
+Ahora responde, ¿Es el siguiente texto un dato valioso para comprender la situación actual del consultante? 
+Texto: {user_response} 
+Ejemplos:
+Texto: "'Quiero saber sobre mi vida amorosa...'o 'Ahora no tengo novio...'" → Sí
+Texto: "Me gusta [algo o alguien]."  → Sí
+Texto: "Estoy pasando por un momento difícil y necesito claridad sobre mi futuro." → Sí
+Texto: "Hola, ¿cómo estás?" → No
+Texto: "Lorem ipsum dolor sit amet." → No
+Texto: "Ahi va lo que tengo que añadir [pero no dice nada]" → No
+Si el usuario se disculpa, o te cuenta un chiste → No
+
+Responde únicamente: 'Sí' o 'No'""")
+        
+        raw_response = self.client.get_response([
+            {"role": "user", "content": info_prompt}
+        ])
+
+        response = 'sí' in raw_response.strip().lower()
+
+        print(f"\n{PASTEL_YELLOW}{THINKING} Se ha añadido información?{RESET} {response}")  # Imprime la respuesta completa para depuración
 
         return response
 

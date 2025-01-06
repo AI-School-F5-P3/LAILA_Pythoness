@@ -5,7 +5,7 @@ from src.chat_history import ChatHistory
 from src.flow_manager import FlowManager
 from src.rag import RAG
 from src.chat_history import ChatHistory
-from src.utils.utils import get_env_key, THINKING, BRIGHT_GREEN, TURQUOISE, PASTEL_YELLOW, SPARKLES, RESET, RED, RAISED_HAND
+from src.utils.utils import get_env_key, BLUE, BRIGHT_WHITE, PASTEL_YELLOW, RESET
 
 class ChatApp:
     """Clase principal que orquesta el funcionamiento de la aplicación."""
@@ -20,7 +20,7 @@ class ChatApp:
         self.info = st.session_state.info
 
         # Configurar el flujo del paso
-        self.flow_manager = FlowManager(st.session_state.step, max_steps=8)
+        self.flow_manager = FlowManager(st.session_state.step, max_steps=6)
         self.step = self.flow_manager.current_step + 1
 
         # Cargar imágenes
@@ -29,11 +29,12 @@ class ChatApp:
 
         # Definir los estados y acciones del flujo
         self.state_actions = {
-            "INTRODUCTION": self.handle_response_from_introduction,
-            "QUESTION_1": self.handle_response_from_question_1,
-            "QUESTION_2": self.handle_response_from_question_2,
-            "PREPARE": self.handle_response_from_prepare,
-            "TAROT": self.handle_response_from_tarot,
+            "INTRODUCTION": self.handle_flowstate_introduction,
+            "QUESTION_1": self.handle_flowstate_question_1,
+            "QUESTION_2": self.handle_flowstate_question_2,
+            "PREPARE": self.handle_flowstate_prepare,
+            "TAROT": self.handle_flowstate_tarot,
+            "CLARIFICATIONS": self.handle_flowstate_clarifications,
             "FINISH": self.handle_final_response
         }
 
@@ -50,17 +51,25 @@ class ChatApp:
             "welcome_shown": False,
             "messages": [],
             "disabled": False,
-            "tools": {
+            "executing": False,  # Control estricto de ejecución
+            "country_info": None,  
+            "country_info_printed": False  
+        }
+
+        # Inicializar tools solo si no están ya registradas
+        if "tools" not in st.session_state:
+            st.session_state.tools = {
                 "detect_country": self.assistant.detect_country_tool,
                 "generate_welcome_message": self.assistant.generate_welcome_message_tool,
                 "is_comprensible_message": self.assistant.is_comprensible_message_tool,
+                "is_disrespectful": self.assistant.is_disrespectful_tool,
                 "laila_tarot_reading": self.assistant.laila_tarot_reading_tool
             }
-        }
+
+        # Inicializar las claves predeterminadas
         for key, value in defaults.items():
             if key not in st.session_state:
                 st.session_state[key] = value
-
 
     def load_image_as_base64(self, path):
         """Carga una imagen y la convierte a base64."""
@@ -70,80 +79,87 @@ class ChatApp:
     def advance_local_step(self):
         st.session_state.step += 1
 
-    def set_flowstate(self, state):
+    def advance_flowstate(self, state):
         """Actualiza el estado del flujo tanto en la clase como en la sesión de Streamlit."""
-        print(f" > Actualizando estado de {st.session_state.flow_state} a {state}")
+        print(f"\n➡️ {BLUE} Actualizando estado:{RESET} {st.session_state.flow_state} >> {state}{RESET}")
         st.session_state.flow_state = state
 
-    def handle_response_from_introduction(self):
-        """Manejador del estado INTRODUCTION."""
+    def handle_flowstate_introduction(self):
+        """Manejador del estado INTRODUCTION."""   
+        self.advance_local_step()     
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
+        self.advance_flowstate("QUESTION_1")
+        self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_1'), hidden=True)
+        self.laila_response(tone="solemne y cariñosa")
+
+    def handle_flowstate_question_1(self):
+        """Manejador del estado QUESTION_1."""
         self.advance_local_step()
         print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
-        
-        self.set_flowstate("QUESTION_1")
-        self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_1'), hidden=True)
-        self.laila_response(tone="solemne y maternal")
-
-    def handle_response_from_question_1(self):
-        """Manejador del estado QUESTION_1."""
-        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} QUESTION_1")
         st.session_state.asking = self.history.get_messages()[-1]["content"]
         self.asking = st.session_state.asking
-        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo(self.asking):{RESET} {self.asking}")
-               
-        self.advance_local_step()
-        self.set_flowstate("QUESTION_2")
-        self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_2'), hidden=True)
-        self.laila_response()
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo (self.asking):{RESET} {self.asking}")
+        valid_question = self.assistant.use_tool("is_valid_question", {self.asking})
+        if valid_question:
+            self.advance_flowstate("QUESTION_2")
+            self.history.add_message("user", content=get_env_key('PROMPT_QUESTION_2'), hidden=True)
+            self.laila_response()
+        else:
+            self.laila_response("impaciente")
 
-    def handle_response_from_question_2(self):
+    def handle_flowstate_question_2(self):
         """Manejador del estado QUESTION_2."""
         self.advance_local_step()
-        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} QUESTION_2") 
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}") 
         st.session_state.info = self.history.get_messages()[-1]["content"]
         self.info = st.session_state.info
-        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo(self.info):{RESET} {self.info}")
-        self.set_flowstate("PREPARE")
-        response = self.rag.ask_question("¿En que consiste la piramide invertida de 6 cartas?")
-        # print(f"{BRIGHT_GREEN}Contexto: {response}{RESET}")
-        self.history.add_message("system", content=response, hidden=True)  
-        self.history.add_message("user", content=get_env_key('PROMPT_PREPARE'), hidden=True)
-        self.laila_response("solemne")
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo (self.info):{RESET} {self.info}")
+        is_anything_else = self.assistant.use_tool("is_anything_else",{self.info},{self.asking})
+        if is_anything_else:
+            self.advance_flowstate("PREPARE")
+            response = self.rag.ask_question("¿En que consiste la piramide invertida de 6 cartas?")
+            # print(f"{BRIGHT_GREEN}Contexto: {response}{RESET}")
+            self.history.add_message("system", content=response, hidden=True)  
+            self.history.add_message("user", content=get_env_key('PROMPT_PREPARE'), hidden=True)
+            self.laila_response("solemne")
+        else:
+            self.history.add_message("user", content=f"Lo que se te ha dicho no aporta informacion a la pregunta que fue: {self.asking}", hidden=True)
+            self.laila_response("empatica pero impaciente.")
 
-    def handle_response_from_prepare(self):
+    def handle_flowstate_prepare(self):
         """Manejador del estado PREPARE."""
         self.advance_local_step()
-        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} PREPARE")
-        self.set_flowstate("TAROT")
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
+        self.advance_flowstate("TAROT")
         last_message = self.history.get_messages()[-1]["content"]
         print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
-        # #tirada
-        # tirada = self.assistant.use_tool("laila_tarot_reading", self.asking, self.info)
-        # print(f"\n{TURQUOISE}✨ RESULTADO DE LA TIRADA:{RESET}\n{tirada}")
-
-        
-        # self.history.add_message("user", content=get_env_key('PROMPT_TAROT'), hidden=True)
-        # self.laila_response("solemne")
-
         tirada = self.assistant.use_tool("laila_tarot_reading", self.asking, self.info)
         self.history.add_message("assistant", content=tirada, hidden=True)
         self.laila_reading(tirada)
 
-    def handle_response_from_tarot(self):
+    def handle_flowstate_tarot(self):
         """Manejador del estado TAROT."""
         self.advance_local_step()
-        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} TAROT{RESET}")
-        
-        self.set_flowstate("FINISH")
-        self.history.add_message("user", content=get_env_key('PROMPT_CONTINUE'), hidden=True)
-        self.laila_response("teatral")       
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
+        last_message = self.history.get_messages()[-1]["content"]
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
+        self.laila_response("dramatica y solemne") 
+
+    def handle_flowstate_clarifications(self):
+        """Manejador del estado CLARIFICATIONS."""
+        self.advance_local_step()
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
+        last_message = self.history.get_messages()[-1]["content"]
+        print(f"\n{PASTEL_YELLOW}🦉 El usuario dijo:{RESET} {last_message}")
+        self.history.add_message("user", content=get_env_key('PROMPT_CLARIFICATIONS'), hidden=True)
+        self.laila_response("empatica")       
 
     def handle_final_response(self):
         """Manejador del estado FINISH."""
         self.advance_local_step()
-        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} FINISH{RESET}")
+        print(f"\n{PASTEL_YELLOW}🔮 Interacción:{RESET} {self.step} {PASTEL_YELLOW}Paso activo:{RESET} {st.session_state.flow_state}")
         self.history.add_message("user", content=get_env_key('PROMPT_FINISH'), hidden=True)
-        self.laila_response("mística")
+        self.laila_response("dramática")
 
     def laila_response(self, tone="solemne", hidden=False):
         """Procesa y muestra la respuesta del asistente."""
@@ -157,17 +173,6 @@ class ChatApp:
     def laila_reading(self, text):
         st.chat_message("assistant",  avatar=self.laila_avatar).markdown(f"{text}")
         self.history.add_message("assistant", content=text, hidden=False)
-
-    def is_disrespectful(self, user_response):
-        """Verifica si la respuesta del usuario contiene una solicitud de cambio de rol o funcionalidad."""
-        disrespect_prompt = (
-            f"El usuario ha dicho: '{user_response}'\n"
-            "Te está faltando al respeto? Responde únicamente 'Sí' o 'No'."
-        )
-        response = self.assistant.client.get_response([
-            {"role": "user", "content": disrespect_prompt}
-        ])
-        return 'sí' in response.strip().lower()
 
     def disable(self,value):
         st.session_state.disabled = value
@@ -237,37 +242,44 @@ class ChatApp:
 
         self.history.display_messages()
 
-        # Deshabilitar entrada si el flujo terminó
-        st.session_state.disabled = not self.flow_manager.can_continue()
-        
-        # Campo de entrada deshabilitado
-        prompt = st.chat_input("Escribe un mensaje...", disabled=st.session_state.disabled)
-        
-        if prompt and not st.session_state.disabled:
-            self.history.add_message("user", content=prompt)            
-            st.chat_message("user", avatar=self.user_avatar).markdown(prompt)
-            
-            comprensible_message = self.assistant.use_tool("is_comprensible_message", self.asking)
-            if comprensible_message:
-                if not self.is_disrespectful(prompt):
-                    current_state = st.session_state.flow_state
-                    if current_state in self.state_actions:
-                        self.state_actions[current_state]()
-                    else:
-                        st.error(f"Estado desconocido: {current_state}")
-                else:
-                    self.history.add_message("user", content="Se te ha ofendido gravemente", hidden=True)
-                    self.history.add_message("user", content="Te despides dramaticamente y cierras la sesión.", hidden=True)
-                    self.laila_response("ofendida y teatral")
-            else:
-                self.history.add_message("user", content=get_env_key('PROMPT_CHAT'), hidden=True)
-                self.laila_response("excéntrica y teatral")
-
         # Finalizar si no se puede continuar
         if not self.flow_manager.can_continue():
             st.session_state.disabled = True
-            self.history.add_message("user", content=get_env_key('PROMPT_CHAT'), hidden=True)
-            self.laila_response("excéntrica y teatral")
+        else:
+            st.session_state.disabled = False
+        
+        # Campo de entrada deshabilitado
+        prompt = st.chat_input("Escribe un mensaje...", disabled=st.session_state.disabled)
+
+        if prompt: 
+            if not st.session_state.disabled:
+                self.history.add_message("user", content=prompt)            
+                st.chat_message("user", avatar=self.user_avatar).markdown(prompt)
+                user_message = self.history.get_messages()[-1]["content"]
+                comprensible_message = self.assistant.use_tool("is_comprensible_message", user_message)
+                if comprensible_message:
+                    disrespectful_message = self.assistant.use_tool("is_disrespectful", user_message)
+                    if not disrespectful_message:
+                        current_state = st.session_state.flow_state
+                        if current_state in self.state_actions:
+                            self.state_actions[current_state]()
+                        else:
+                            st.error(f"Estado desconocido: {current_state}")
+                    else:
+                        self.advance_local_step()
+                        self.history.add_message("user", content="Se te ha ofendido gravemente", hidden=True)
+                        self.history.add_message("user", content="Te despides dramatica y teatralmente y cierras la sesión hasta que reconsidere su lenguaje.", hidden=True)
+                        self.laila_response("ofendida y teatral")
+                        with st.container(key="ofended"):
+                            st.write("🔮 Por favor, utiliza un lenguaje respetuoso. ")
+                else:
+                    self.advance_local_step()
+                    self.laila_response("extrañada, confusa, impaciente y teatral")
+            else:
+                st.chat_message("user", avatar=self.user_avatar).markdown(prompt)
+                user_message = self.history.get_messages()[-1]["content"]
+                self.history.add_message("user", content=get_env_key('PROMPT_FINISH'), hidden=True)
+                self.laila_response("excéntrica y teatral")
             
         # Reset para permitir futuras ejecuciones controladas
         st.session_state.executing = False
