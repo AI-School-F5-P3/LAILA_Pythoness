@@ -68,18 +68,18 @@ header {
 //         padding: 5px;
 //     }
 // }
+@keyframes appear {
+    0% {
+        // background-position: 0% -100%;
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+        // background-position: 0% 0%;
+    }
+}
 
 .stVerticalBlock {
-    @keyframes appear {
-        0% {
-            // background-position: 0% -100%;
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-            // background-position: 0% 0%;
-        }
-    }
     &.st-key-header {
         position: fixed;
         top: 0;
@@ -89,7 +89,7 @@ header {
         width: 75rem;
         background-size: cover;
         background-position: center bottom;
-        background-repeat: no-repeat; 
+        background-repeat: no-repeat;
     }
     @keyframes gradient {
         0% {
