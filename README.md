@@ -1,2 +1,3 @@
-# lola_pythoness
-Logical Oracle Luminous AI Pythones
+# LAILA Pythoness
+**Logical AI to Luminous Arcana Pythoness**
+##
