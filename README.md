@@ -1,6 +1,6 @@
 ![](./assets/header.png)
 
-# LAILA Pythoness
+# **LAILA Pythoness**
 ### ✨ **Logical AI to Luminous Arcana Pythoness**
 
 LAILA Pythoness actúa como una tarotista profesional 🃏, siempre disponible para realizar consultas de tarot. Su capacidad principal radica en interpretar preguntas formuladas por el usuario/a y ofrecer respuestas basadas en la simbología del tarot Rider-Waite, acompañadas de un toque narrativo y dramatismo.
@@ -91,6 +91,9 @@ LAILA-Pythoness/
 └── .env # Configuración de variables de entorno
 
 ```
+### ✨ Diagrama de flujo
+
+![](./assets/laila_pythoness.drawio.png)
 
 ### ✨ Requisitos
 
